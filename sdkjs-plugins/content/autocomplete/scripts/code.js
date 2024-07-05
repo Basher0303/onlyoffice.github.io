@@ -113,16 +113,31 @@
 	window.isAutoCompleteReady = false;
 	window.getAutoComplete = function(text)
 	{
-		if (!g_dictionary)
-			return;
+		var dictionary;
+
+		var detectLang = function (char) {
+			if (/[А-ЯЁа-яё]/.test(char)) {
+				return 'ru';
+			} else if (/[A-Za-z]/.test(char)) {
+				return 'en';
+			} else {
+				return '';
+			}
+		}(text[0]);
+		if(detectLang) {
+			dictionary = dictionaries[detectLang];
+		}
+
+		if (!dictionary)
+			return [];
 
 		window.isAutoCompleteReady = true;
-		g_dictionary.sort();
+		dictionary.sort();
 
 		var textFound = text.toLowerCase();
 
 		var start = 0;
-		var end = g_dictionary.length - 1;
+		var end = dictionary.length - 1;
 		var index = 0;
 
 		while (true)
@@ -135,7 +150,7 @@
 
 				while (index != end)
 				{
-					if (g_dictionary[index] >= textFound)
+					if (dictionary[index] >= textFound)
 						break;
 					index++;
 				}
@@ -143,7 +158,7 @@
 				break;
 			}
 
-			var test = g_dictionary[middle];
+			var test = dictionary[middle];
 
 			if (test == textFound)
 			{
@@ -162,10 +177,10 @@
 		}
 
 		var ret = [];
-		end = g_dictionary.length;
+		end = dictionary.length;
 		while (index < end)
 		{
-			var testRec = g_dictionary[index++];
+			var testRec = dictionary[index++];
 			if (testRec.indexOf(textFound) != 0)
 				break;
 
